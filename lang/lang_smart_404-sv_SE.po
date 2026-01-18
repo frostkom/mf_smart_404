@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-17 14:30+0100\n"
+"POT-Creation-Date: 2026-01-18 17:00+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -15,45 +15,67 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../include/classes.php:14
+#: ../include/classes.php:19
 msgid "Search"
 msgstr "Sök"
 
-#: ../include/classes.php:15
+#: ../include/classes.php:20
 msgid "Redirects"
 msgstr "Vidarebefordringar"
 
-#: ../include/classes.php:24
+#: ../include/classes.php:29
 msgid "Smart 404"
 msgstr ""
 
-#: ../include/classes.php:44
-msgid "Drag up/down to change priority"
-msgstr "Dra upp/ner för att ändra prioritering"
+#: ../include/classes.php:134
+msgid "Edit"
+msgstr "Redigera"
 
-#: ../include/classes.php:62
+#: ../include/classes.php:137
+msgid "Delete"
+msgstr "Radera"
+
+#: ../include/classes.php:150
 msgid "from-url"
 msgstr "från-url"
 
-#: ../include/classes.php:63
+#: ../include/classes.php:151
 msgid "to-url"
 msgstr "till-url"
 
-#: ../include/classes.php:65
-msgid "Add"
-msgstr "Lägg till"
+#: ../include/classes.php:153
+msgid "Save"
+msgstr "Spara"
 
-#: ../include/classes.php:135
+#: ../include/classes.php:221
 msgid "I successfully updated the rule for you"
 msgstr "Jag uppdaterade regeln åt dig"
 
-#: ../include/classes.php:142
-msgid "I successfully added the rule for you"
-msgstr "Jag la till regeln åt dig"
+#: ../include/classes.php:228
+msgid "I successfully saved the rule for you"
+msgstr "Jag sparade regeln åt dig"
 
-#: ../include/classes.php:148
+#: ../include/classes.php:234
 msgid "You have to enter both from and to before saving a rule"
 msgstr "Du behöver ange både från och till innan du sparar en regel"
+
+#: ../include/classes.php:265
+msgid "I successfully deleted the rule for you"
+msgstr "Jag raderade regeln åt dig"
+
+#: ../include/classes.php:270
+msgid "I could not remove the rule for you"
+msgstr "Jag kunde inte radera regeln åt dig"
+
+#: ../include/classes.php:276
+msgid "There was no rule to remove"
+msgstr "Det fanns ingen regel att radera"
+
+#~ msgid "Drag up/down to change priority"
+#~ msgstr "Dra upp/ner för att ändra prioritering"
+
+#~ msgid "Add"
+#~ msgstr "Lägg till"
 
 #~ msgid "Add this to the beginning of %s"
 #~ msgstr "Lägg till detta i början av %s"

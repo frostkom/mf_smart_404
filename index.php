@@ -3,7 +3,7 @@
 Plugin Name: MF Smart 404
 Plugin URI: https://github.com/frostkom/mf_smart_404
 Description:
-Version: 2.6.13
+Version: 2.6.14
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se

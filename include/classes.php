@@ -36,7 +36,7 @@ class mf_smart_404
 
 		$arr_post_types = get_post_types_for_select(array('include' => array('types'), 'add_is' => false));
 
-		echo "<ul>"; // id='also_search_group'
+		echo "<ul>";
 
 			foreach($arr_post_types as $group_key => $group)
 			{
@@ -94,11 +94,11 @@ class mf_smart_404
 									break;
 
 									case 'draft':
-										echo "<i class='far fa-edit'></i>";
+										echo "<i class='far fa-edit grey' data-from='".$redirect_from."' title='".__("Add", 'lang_smart_404')."'></i>";
 									break;
 
 									default:
-										echo "<i class='fa fa-question-circle blue' title='".$redirect_status."'></i>";
+										echo "<i class='fa fa-question-circle grey' title='".$redirect_status."'></i>";
 									break;
 								}
 
@@ -121,7 +121,7 @@ class mf_smart_404
 								}
 							
 							echo "</td>
-							<td><i class='fa fa-trash red'></i></td>
+							<td><i class='fa fa-trash red' title='".__("Delete", 'lang_smart_404')."'></i></td>
 						</tr>";
 					}
 
@@ -136,7 +136,7 @@ class mf_smart_404
 			.show_textfield(array('value' => $redirect_from, 'placeholder' => __("from-url", 'lang_smart_404')))
 			.show_textfield(array('value' => $redirect_to, 'placeholder' => __("to-url", 'lang_smart_404')))
 		."</div>"
-		.show_button(array('type' => 'button', 'name' => 'btnRedirectAdd', 'text' => __("Add", 'lang_smart_404'), 'class' => 'button-secondary'))
+		.show_button(array('type' => 'button', 'name' => 'btnRedirectSave', 'text' => __("Save", 'lang_smart_404'), 'class' => 'button-secondary'))
 		."<p id='redirect_debug'></p>";
 	}
 
@@ -211,7 +211,7 @@ class mf_smart_404
 			{
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectFrom = '".$redirect_from."', redirectTo = '".$redirect_to."', redirectCreated = NOW(), userID = '%d'", $wpdb->blogid, get_current_user_id()));
 
-				$done_text = __("I successfully added the rule for you", 'lang_smart_404');
+				$done_text = __("I successfully saved the rule for you", 'lang_smart_404');
 			}
 		}
 

@@ -1,12 +1,10 @@
 jQuery(function($)
 {
-	/*$("#also_search_group").sortable().disableSelection();*/
-
-	$(document).on('click', "button[name=btnRedirectAdd]", function(e)
+	$(document).on('click', "button[name=btnRedirectSave]", function(e)
 	{
 		var dom_button = $(e.currentTarget),
-			dom_redirect_from = dom_button.siblings(".flex_flow").find(".form_textfield:first-of-type input"),
-			dom_redirect_to = dom_button.siblings(".flex_flow").find(".form_textfield:last-of-type input"),
+			dom_redirect_from = dom_button.siblings(".mf_form").find(".form_textfield:first-of-type input"),
+			dom_redirect_to = dom_button.siblings(".mf_form").find(".form_textfield:last-of-type input"),
 			dom_result = dom_button.siblings("p");
 
 		dom_result.html("<i class='fa fa-spinner fa-spin fa-2x'></i>");
@@ -39,6 +37,18 @@ jQuery(function($)
 				}
 			}
 		});
+
+		return false;
+	});
+
+	$(document).on('click', ".smart_404_list .fa-edit", function(e)
+	{
+		var dom_button = $(e.currentTarget),
+			dom_data_from = dom_button.data('from'),
+			dom_form = dom_button.parents(".smart_404_list").siblings(".mf_form"),
+			dom_form_from = dom_form.find(".form_textfield:first-of-type input");
+
+		dom_form_from.val(dom_data_from);
 
 		return false;
 	});
