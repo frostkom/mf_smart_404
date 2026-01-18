@@ -1,0 +1,69 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-17 14:30+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Martin Fors\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: sv_SE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: esc_html__;esc_html_e;esc_attr__;esc_attr_e;__;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../include/classes.php:14
+msgid "Search"
+msgstr "Sök"
+
+#: ../include/classes.php:15
+msgid "Redirects"
+msgstr "Vidarebefordringar"
+
+#: ../include/classes.php:24
+msgid "Smart 404"
+msgstr ""
+
+#: ../include/classes.php:44
+msgid "Drag up/down to change priority"
+msgstr "Dra upp/ner för att ändra prioritering"
+
+#: ../include/classes.php:62
+msgid "from-url"
+msgstr "från-url"
+
+#: ../include/classes.php:63
+msgid "to-url"
+msgstr "till-url"
+
+#: ../include/classes.php:65
+msgid "Add"
+msgstr "Lägg till"
+
+#: ../include/classes.php:135
+msgid "I successfully updated the rule for you"
+msgstr "Jag uppdaterade regeln åt dig"
+
+#: ../include/classes.php:142
+msgid "I successfully added the rule for you"
+msgstr "Jag la till regeln åt dig"
+
+#: ../include/classes.php:148
+msgid "You have to enter both from and to before saving a rule"
+msgstr "Du behöver ange både från och till innan du sparar en regel"
+
+#~ msgid "Add this to the beginning of %s"
+#~ msgstr "Lägg till detta i början av %s"
+
+#~ msgid "There are no new redirects to add"
+#~ msgstr "Det finns inga vidarebefordringar att lägga till"
+
+#~ msgid ""
+#~ "I could not add the rule you requested because it was not formated "
+#~ "correctly"
+#~ msgstr ""
+#~ "Jag kunde inte lägga till regeln som du bad om eftersom den var felaktigt "
+#~ "formaterad"
