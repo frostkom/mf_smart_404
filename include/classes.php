@@ -168,13 +168,16 @@ class mf_smart_404
 	{
 		if($query->is_main_query() && $query->is_search())
 		{
-			add_action('wp_footer', function() use ( $query )
+			add_action('wp_footer', function() use ($query)
 			{
-				if(0 === $query->found_posts)
+				global $wpdb;
+
+				if($query->found_posts === 0)
 				{
 					$search_term = get_search_query();
 
-					do_log('Empty search: '.$search_term.' by IP: '.$_SERVER['REMOTE_ADDR']);
+					//do_log("Empty search: ".$search_term);
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'draft', sanitize_title_with_dashes(sanitize_title($search_term)), ""));
 				}
 			});
 		}
