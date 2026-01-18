@@ -374,7 +374,7 @@ class mf_smart_404
 					{
 						//do_log(__FUNCTION__.": No - ".$wpdb->last_query);
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW()", $wpdb->blogid, 'draft', $search, ""));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'draft', $search, ""));
 					}
 				}
 
