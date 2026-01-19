@@ -58,7 +58,7 @@ class mf_smart_404
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		mf_enqueue_script('script_smart_404', $plugin_include_url."script_wp.js", array('ajax_url' => admin_url('admin-ajax.php')));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' ORDER BY redirectUsedDate DESC, redirectUsedAmount DESC, redirectCreated DESC", $wpdb->blogid));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC", $wpdb->blogid));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -81,6 +81,7 @@ class mf_smart_404
 						$redirect_status = $r->redirectStatus;
 						$redirect_from = $r->redirectFrom;
 						$redirect_to = $r->redirectTo;
+						$redirect_created = $r->redirectCreated;
 						$redirect_used_date = $r->redirectUsedDate;
 						$redirect_used_amount = $r->redirectUsedAmount;
 
@@ -104,9 +105,16 @@ class mf_smart_404
 
 							echo "</td>
 							<td><span class='grey'>".$site_url."/</span>".$redirect_from."</td>
-							<td>-></td>
 							<td>";
 							
+								if($redirect_to != '')
+								{
+									echo "->";
+								}
+								
+							echo "</td>
+							<td>";
+
 								if($redirect_to != '')
 								{
 									echo "<span class='grey'>".$site_url."/</span>".$redirect_to;
@@ -117,9 +125,19 @@ class mf_smart_404
 
 								if($redirect_used_amount > 0)
 								{
-									echo format_date($redirect_used_date)." (".$redirect_used_amount.")";
+									echo format_date($redirect_used_date);
+
+									if($redirect_used_amount > 1)
+									{
+										echo " (".$redirect_used_amount.")";
+									}
 								}
-							
+
+								else if($redirect_created > DEFAULT_DATE)
+								{
+									echo "<span class='grey'>".format_date($redirect_created)."</span>";
+								}
+
 							echo "</td>
 							<td><i class='fa fa-trash red' title='".__("Delete", 'lang_smart_404')."'></i></td>
 						</tr>";
@@ -176,8 +194,10 @@ class mf_smart_404
 				{
 					$search_term = get_search_query();
 
-					//do_log("Empty search: ".$search_term);
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'draft', sanitize_title_with_dashes(sanitize_title($search_term)), ""));
+					if(strpos($search_term, ".") !== true)
+					{
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'draft', sanitize_title_with_dashes(sanitize_title($search_term)), ""));
+					}
 				}
 			});
 		}
@@ -373,7 +393,7 @@ class mf_smart_404
 						}
 					}
 
-					else
+					else if(strpos($search, ".") !== true)
 					{
 						//do_log(__FUNCTION__.": No - ".$wpdb->last_query);
 
@@ -456,90 +476,5 @@ class mf_smart_404
 		}
 
 		return $redirect;
-	}
-
-	function recommend_config($data)
-	{
-		global $wpdb, $obj_base;
-
-		if(!isset($obj_base))
-		{
-			$obj_base = new mf_base();
-		}
-
-		if(!isset($data['file'])){		$data['file'] = '';}
-
-		$result = $wpdb->get_results($wpdb->prepare("SELECT blogID, redirectFrom, redirectTo FROM ".$wpdb->base_prefix."redirect WHERE redirectStatus = %s ORDER BY redirectCreated DESC", 'publish'));
-
-		if($wpdb->num_rows > 0)
-		{
-			switch($obj_base->get_server_type())
-			{
-				default:
-				case 'apache':
-					$update_with = "<IfModule mod_rewrite.c>\r\n"
-					."	RewriteEngine On\r\n";
-
-					foreach($result as $r)
-					{
-						$intBlogID = $r->blogID;
-						$strRedirectFrom = $r->redirectFrom;
-						$strRedirectTo = $r->redirectTo;
-
-						$site_url = get_site_url();
-						$site_url_clean = get_site_url_clean(array('id' => $intBlogID, 'trim' => "/"));
-
-						@list($site_host, $rest) = explode("/", $site_url_clean);
-
-						$strRedirectFrom = remove_protocol(array('url' => $strRedirectFrom, 'clean' => true));
-
-						$update_with .= "\r\n"
-						."	RewriteCond %{HTTP_HOST} ^".$site_host."$ [NC]\r\n"
-						."	RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ ".substr($strRedirectFrom, 0, -1)."\ HTTP/ [OR]\r\n"
-						."	RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ ".$strRedirectFrom."\ HTTP/\r\n"
-						."	RewriteRule ^(.*)$ ".$strRedirectTo." [L,R=301]\r\n";
-					}
-
-					$update_with .= "</IfModule>";
-				break;
-
-				case 'nginx':
-					$update_with = "";
-
-					foreach($result as $r)
-					{
-						$intBlogID = $r->blogID;
-						$strRedirectFrom = $r->redirectFrom;
-						$strRedirectTo = $r->redirectTo;
-
-						$site_url = get_site_url();
-						$site_url_clean = get_site_url_clean(array('id' => $intBlogID, 'trim' => "/"));
-
-						@list($site_host, $rest) = explode("/", $site_url_clean);
-
-						$strRedirectFrom = remove_protocol(array('url' => $strRedirectFrom, 'clean' => true));
-
-						$update_width .= ($update_with != '' ? "\r\n" : "")
-						."location / {\r\n"
-						."	if(\$http_host ~* '^".$site_host."$'){\r\n"
-						."		rewrite ^".$strRedirectFrom."$ /".$strRedirectTo." redirect;\r\n"
-						."	}\r\n"
-						."}";
-					}
-				break;
-			}
-		}
-
-		if(isset($update_with))
-		{
-			$data['html'] .= $obj_base->update_config(array(
-				'plugin_name' => "MF Smart 404",
-				'file' => $data['file'],
-				'update_with' => $update_with,
-				'auto_update' => true,
-			));
-		}
-
-		return $data;
 	}
 }
