@@ -53,12 +53,11 @@ jQuery(function($)
 		return false;
 	});
 
-	$(document).on('click', ".smart_404_list .fa-trash", function(e)
+	$(document).on('click', ".smart_404_list .fa-trash, .smart_404_list .fa-eye-slash", function(e)
 	{
 		var dom_button = $(e.currentTarget),
 			dom_td = dom_button.parent("td"),
-			dom_tr = dom_td.parent("tr"),
-			dom_tr_id = dom_tr.attr('id').replace("redirect_", "");
+			dom_tr = dom_td.parent("tr");
 
 		dom_td.html("<i class='fa fa-spinner fa-spin'></i>");
 
@@ -68,8 +67,8 @@ jQuery(function($)
 			type: 'post',
 			dataType: 'json',
 			data: {
-				action: 'api_smart_404_remove_redirect',
-				redirect_id: dom_tr_id
+				action: dom_button.attr('rel'),
+				redirect_id: dom_tr.attr('id').replace("redirect_", "")
 			},
 			success: function(data)
 			{

@@ -3,7 +3,7 @@
 Plugin Name: MF Smart 404
 Plugin URI: https://github.com/frostkom/mf_smart_404
 Description:
-Version: 2.6.16
+Version: 2.6.17
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
@@ -20,6 +20,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	$obj_smart_404 = new mf_smart_404();
 
 	add_action('cron_base', 'activate_smart_404', mt_rand(1, 10));
+	add_action('cron_base', array($obj_smart_404, 'cron_base'), mt_rand(2, 10));
 
 	add_action('init', array($obj_smart_404, 'init'));
 
@@ -42,6 +43,7 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 	{
 		add_action('wp_ajax_api_smart_404_save_redirect', array($obj_smart_404, 'api_smart_404_save_redirect'));
 		add_action('wp_ajax_api_smart_404_remove_redirect', array($obj_smart_404, 'api_smart_404_remove_redirect'));
+		add_action('wp_ajax_api_smart_404_ignore_redirect', array($obj_smart_404, 'api_smart_404_ignore_redirect'));
 	}
 
 	add_action('template_redirect', array($obj_smart_404, 'template_redirect'));
@@ -65,7 +67,10 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			redirectUsedDate DATETIME DEFAULT NULL,
 			redirectUsedAmount INT UNSIGNED DEFAULT '0',
 			PRIMARY KEY (redirectID),
+			KEY redirectStatus (redirectStatus),
 			KEY redirectFrom (redirectFrom),
+			KEY redirectUsedDate (redirectUsedDate),
+			KEY redirectUsedAmount (redirectUsedAmount),
 			KEY redirectCreated (redirectCreated)
 		) DEFAULT CHARSET=".$default_charset);
 
@@ -81,6 +86,12 @@ if(!function_exists('is_plugin_active') || function_exists('is_plugin_active') &
 			'redirectDeletedID' => "ALTER TABLE [table] DROP COLUMN [column]", //260117
 			'redirectDeleted' => "ALTER TABLE [table] DROP COLUMN [column]", //260117
 			'userID' => "ALTER TABLE [table] DROP COLUMN [column]", //260117
+		);
+
+		$arr_add_index[$wpdb->base_prefix."redirect"] = array(
+			'redirectStatus' => "ALTER TABLE [table] ADD INDEX [column] ([column])", //260119
+			'redirectUsedDate' => "ALTER TABLE [table] ADD INDEX [column] ([column])", //260119
+			'redirectUsedAmount' => "ALTER TABLE [table] ADD INDEX [column] ([column])", //260119
 		);
 
 		update_columns($arr_update_column);

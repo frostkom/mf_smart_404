@@ -4,6 +4,22 @@ class mf_smart_404
 {
 	function __construct(){}
 
+	function cron_base()
+	{
+		global $wpdb;
+
+		$obj_cron = new mf_cron();
+		$obj_cron->start(__CLASS__);
+
+		if($obj_cron->is_running == false)
+		{
+			// Delete old unused redirects
+			$wpdb->query("DELETE FROM ".$wpdb->base_prefix."redirect WHERE (redirectStatus IN ('ignore', 'publish') AND redirectUsedDate < DATE_SUB(NOW(), INTERVAL 1 YEAR)) OR (redirectStatus IN ('draft', 'search') AND redirectUsedDate < DATE_SUB(NOW(), INTERVAL 1 MONTH))");
+		}
+
+		$obj_cron->end();
+	}
+
 	function init()
 	{
 		load_plugin_textdomain('lang_smart_404', false, str_replace("/include", "", dirname(plugin_basename(__FILE__)))."/lang/");
@@ -58,7 +74,7 @@ class mf_smart_404
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		mf_enqueue_script('script_smart_404', $plugin_include_url."script_wp.js", array('ajax_url' => admin_url('admin-ajax.php')));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC", $wpdb->blogid));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectStatus != %s ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC", $wpdb->blogid, 'ignore'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -98,20 +114,38 @@ class mf_smart_404
 										echo "<i class='far fa-edit grey' data-from='".$redirect_from."' title='".__("Add", 'lang_smart_404')."'></i>";
 									break;
 
+									case 'search':
+										echo "<i class='far fa-edit grey' data-from='".sanitize_title_with_dashes(sanitize_title($redirect_from))."' title='".__("Add", 'lang_smart_404')."'></i>";
+									break;
+
 									default:
 										echo "<i class='fa fa-question-circle grey' title='".$redirect_status."'></i>";
 									break;
 								}
 
 							echo "</td>
-							<td><span class='grey'>".$site_url."/</span>".$redirect_from."</td>
 							<td>";
-							
+
+								switch($redirect_status)
+								{
+									case 'search':
+										echo "<span class='grey'>".__("Search", 'lang_smart_404').": </span>";
+									break;
+
+									default:
+										echo "<span class='grey'>".$site_url."/</span>";
+									break;
+								}
+
+								echo $redirect_from
+							."</td>
+							<td>";
+
 								if($redirect_to != '')
 								{
 									echo "->";
 								}
-								
+
 							echo "</td>
 							<td>";
 
@@ -139,7 +173,18 @@ class mf_smart_404
 								}
 
 							echo "</td>
-							<td><i class='fa fa-trash red' title='".__("Delete", 'lang_smart_404')."'></i></td>
+							<td>
+								<i class='fa fa-trash red' title='".__("Delete", 'lang_smart_404')."' rel='api_smart_404_remove_redirect'></i>";
+
+								switch($redirect_status)
+								{
+									case 'draft':
+									case 'search':
+										echo "&nbsp;<i class='fa fa-eye-slash grey' title='".__("Ignore", 'lang_smart_404')."' rel='api_smart_404_ignore_redirect'></i>";
+									break;
+								}
+
+							echo "</td>
 						</tr>";
 					}
 
@@ -196,7 +241,7 @@ class mf_smart_404
 
 					if(strpos($search_term, ".") !== true)
 					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'draft', sanitize_title_with_dashes(sanitize_title($search_term)), ""));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'search', $search_term, ""));
 					}
 				}
 			});
@@ -283,6 +328,48 @@ class mf_smart_404
 		else
 		{
 			$error_text = __("There was no rule to remove", 'lang_smart_404');
+		}
+
+		if($done_text != '')
+		{
+			$result['success'] = true;
+		}
+
+		$result['message'] = get_notification();
+
+		header("Content-Type: application/json");
+		echo json_encode($result);
+		die();
+	}
+
+	function api_smart_404_ignore_redirect()
+	{
+		global $wpdb, $done_text, $error_text;
+
+		$result = array(
+			'success' => false,
+		);
+
+		$redirect_id = check_var('redirect_id', 'int');
+
+		if($redirect_id > 0)
+		{
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."redirect SET redirectStatus = %s WHERE blogID = '%d' AND redirectID = '%d'", 'ignore', $wpdb->blogid, $redirect_id));
+
+			if($wpdb->rows_affected == 1)
+			{
+				$done_text = __("I successfully ignored the rule for you", 'lang_smart_404');
+			}
+
+			else
+			{
+				$error_text = __("I could not ignore the rule for you", 'lang_smart_404');
+			}
+		}
+
+		else
+		{
+			$error_text = __("There was no rule to ignore", 'lang_smart_404');
 		}
 
 		if($done_text != '')
@@ -385,6 +472,8 @@ class mf_smart_404
 								break;
 
 								case 'draft':
+								case 'ignore':
+								case 'search':
 									$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."redirect SET redirectUsedAmount = (redirectUsedAmount + 1), redirectUsedDate = NOW() WHERE redirectID = '%d'", $redirect_id));
 
 									$redirect_to = "";
