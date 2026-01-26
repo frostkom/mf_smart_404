@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-20 19:09+0100\n"
+"POT-Creation-Date: 2026-01-26 09:51+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Martin Fors\n"
 "Language-Team: \n"
@@ -53,39 +53,43 @@ msgstr "till-url"
 msgid "Save"
 msgstr "Spara"
 
-#: ../include/classes.php:275
+#: ../include/classes.php:248
 msgid "I successfully updated the rule for you"
 msgstr "Jag uppdaterade regeln åt dig"
 
-#: ../include/classes.php:282
+#: ../include/classes.php:257
 msgid "I successfully saved the rule for you"
 msgstr "Jag sparade regeln åt dig"
 
-#: ../include/classes.php:288
+#: ../include/classes.php:262
+msgid "I could not save the rule for you. If the problem persists, contact an administrator."
+msgstr "Jag kunde inte spara regeln åt dig. Om problemet kvarstår, kontakta en administratör."
+
+#: ../include/classes.php:269
 msgid "You have to enter both from and to before saving a rule"
 msgstr "Du behöver ange både från och till innan du sparar en regel"
 
-#: ../include/classes.php:319
+#: ../include/classes.php:300
 msgid "I successfully deleted the rule for you"
 msgstr "Jag raderade regeln åt dig"
 
-#: ../include/classes.php:324
+#: ../include/classes.php:305
 msgid "I could not remove the rule for you"
 msgstr "Jag kunde inte radera regeln åt dig"
 
-#: ../include/classes.php:330
+#: ../include/classes.php:311
 msgid "There was no rule to remove"
 msgstr "Det fanns ingen regel att radera"
 
-#: ../include/classes.php:361
+#: ../include/classes.php:342
 msgid "I successfully ignored the rule for you"
 msgstr "Jag ignorerade regeln åt dig"
 
-#: ../include/classes.php:366
+#: ../include/classes.php:347
 msgid "I could not ignore the rule for you"
 msgstr "Jag kunde inte ignorera regeln åt dig"
 
-#: ../include/classes.php:372
+#: ../include/classes.php:353
 msgid "There was no rule to ignore"
 msgstr "Det fanns ingen regel att ignorera"
 

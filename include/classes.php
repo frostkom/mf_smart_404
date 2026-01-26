@@ -203,30 +203,6 @@ class mf_smart_404
 		."<p id='redirect_debug'></p>";
 	}
 
-	function post_updated($post_id, $post_after, $post_before)
-	{
-		global $wpdb;
-
-		$setting_also_search = get_option_or_default('setting_also_search', get_post_types_for_select(array('include' => array('types'))));
-
-		if($post_after->post_name != $post_before->post_name && in_array($post_after->post_type, $setting_also_search))
-		{
-			if($post_after->post_status == 'trash')
-			{
-				//$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->base_prefix."redirect SET redirectStatus = %s WHERE blogID = '%d' AND postID = '%d'", 'trash', $wpdb->blogid, $post_id));
-				do_log(__FUNCTION__.": Remove ".$post_before->post_name." from ".$wpdb->base_prefix."redirect");
-			}
-
-			else if($post_before->post_status == 'publish')
-			{
-				$redirect_to = get_permalink($post_id);
-				$redirect_from = str_replace("/".$post_after->post_name."/", "/".$post_before->post_name."/", get_permalink($post_id));
-
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW()", $wpdb->blogid, 'publish', $redirect_from, $redirect_to));
-			}
-		}
-	}
-
 	function pre_get_posts($query)
 	{
 		if($query->is_main_query() && $query->is_search())
@@ -239,10 +215,7 @@ class mf_smart_404
 				{
 					$search_term = get_search_query();
 
-					if(strpos($search_term, ".") !== true)
-					{
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'search', $search_term, ""));
-					}
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'search', $search_term, ""));
 				}
 			});
 		}
@@ -277,9 +250,17 @@ class mf_smart_404
 
 			else
 			{
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectFrom = '".$redirect_from."', redirectTo = '".$redirect_to."', redirectCreated = NOW(), userID = '%d'", $wpdb->blogid, get_current_user_id()));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectFrom = '".$redirect_from."', redirectTo = '".$redirect_to."', redirectCreated = NOW()", $wpdb->blogid));
 
-				$done_text = __("I successfully saved the rule for you", 'lang_smart_404');
+				if($wpdb->rows_affected > 0)
+				{
+					$done_text = __("I successfully saved the rule for you", 'lang_smart_404');
+				}
+
+				else
+				{
+					$error_text = __("I could not save the rule for you. If the problem persists, contact an administrator.", 'lang_smart_404');
+				}
 			}
 		}
 
@@ -482,7 +463,7 @@ class mf_smart_404
 						}
 					}
 
-					else if(strpos($search, ".") !== true)
+					else if(strpos($search, ".") === false)
 					{
 						//do_log(__FUNCTION__.": No - ".$wpdb->last_query);
 
