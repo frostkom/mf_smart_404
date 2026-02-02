@@ -74,7 +74,7 @@ class mf_smart_404
 		$plugin_include_url = plugin_dir_url(__FILE__);
 		mf_enqueue_script('script_smart_404', $plugin_include_url."script_wp.js", array('ajax_url' => admin_url('admin-ajax.php')));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectStatus != %s ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC", $wpdb->blogid, 'ignore'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectStatus != %s ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC LIMIT 0, 50", $wpdb->blogid, 'ignore'));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -129,16 +129,15 @@ class mf_smart_404
 								switch($redirect_status)
 								{
 									case 'search':
-										echo "<span class='grey'>".__("Search", 'lang_smart_404').": </span>";
+										echo "<span class='grey'>".__("Search", 'lang_smart_404').": </span>".$redirect_from;
 									break;
 
 									default:
-										echo "<span class='grey'>".$site_url."/</span>";
+										echo "<a href='".$site_url."/".$redirect_from."'><span class='grey'>".$site_url."/</span>".$redirect_from."</a>";
 									break;
 								}
 
-								echo $redirect_from
-							."</td>
+							echo "</td>
 							<td>";
 
 								if($redirect_to != '')
@@ -151,7 +150,15 @@ class mf_smart_404
 
 								if($redirect_to != '')
 								{
-									echo "<span class='grey'>".$site_url."/</span>".$redirect_to;
+									if(substr($redirect_to, 0, 4) != "http")
+									{
+										echo "<a href='".$site_url."/".$redirect_to."'><span class='grey'>".$site_url."/</span>".$redirect_to."</a>";
+									}
+
+									else
+									{									
+										echo "<a href='".$redirect_from."'>".$redirect_to."</a>";
+									}
 								}
 
 							echo "</td>
@@ -445,6 +452,11 @@ class mf_smart_404
 							$redirect_id = $r->redirectID;
 							$redirect_status = $r->redirectStatus;
 							$redirect_to = $r->redirectTo;
+
+							if(substr($redirect_to, 0, 4) != "http")
+							{
+								$redirect_to = get_site_url()."/".$redirect_to;
+							}
 
 							switch($redirect_status)
 							{
