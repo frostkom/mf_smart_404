@@ -1,0 +1,10 @@
+.smart_404_list
+{
+	margin-bottom: 1em;
+}
+
+	.smart_404_list td.nowrap i + i
+	{
+		display: inline-block;
+		margin-left: .5em;
+	}

@@ -72,7 +72,8 @@ class mf_smart_404
 		//$option = get_option($setting_key);
 
 		$plugin_include_url = plugin_dir_url(__FILE__);
-		mf_enqueue_script('script_smart_404', $plugin_include_url."script_wp.js", array('ajax_url' => admin_url('admin-ajax.php')));
+		mf_enqueue_style('style_smart_404_settings', $plugin_include_url."style_settings.css");
+		mf_enqueue_script('script_smart_404_settings', $plugin_include_url."script_settings.js", array('ajax_url' => admin_url('admin-ajax.php')));
 
 		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectStatus != %s ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC LIMIT 0, 50", $wpdb->blogid, 'ignore'));
 
@@ -111,11 +112,8 @@ class mf_smart_404
 									break;
 
 									case 'draft':
-										echo "<i class='far fa-edit grey' data-from='".$redirect_from."' title='".__("Add", 'lang_smart_404')."'></i>";
-									break;
-
 									case 'search':
-										echo "<i class='far fa-edit grey' data-from='".sanitize_title_with_dashes(sanitize_title($redirect_from))."' title='".__("Add", 'lang_smart_404')."'></i>";
+										echo "<i class='far fa-edit grey'></i>";
 									break;
 
 									default:
@@ -180,14 +178,30 @@ class mf_smart_404
 								}
 
 							echo "</td>
-							<td>
-								<i class='fa fa-trash red' title='".__("Delete", 'lang_smart_404')."' rel='api_smart_404_remove_redirect'></i>";
+							<td class='nowrap'>";
+
+								switch($redirect_status)
+								{
+									case 'publish':
+										echo "<i class='fa fa-wrench' data-from='".$redirect_from."' data-to='".$redirect_to."' title='".__("Edit", 'lang_smart_404')."'></i>";
+									break;
+
+									case 'draft':
+										echo "<i class='fa fa-wrench' data-from='".$redirect_from."' title='".__("Add", 'lang_smart_404')."'></i>";
+									break;
+
+									case 'search':
+										echo "<i class='fa fa-wrench' data-from='".sanitize_title_with_dashes(sanitize_title($redirect_from))."' title='".__("Add", 'lang_smart_404')."'></i>";
+									break;
+								}
+
+								echo "<i class='fa fa-trash red' title='".__("Delete", 'lang_smart_404')."' rel='api_smart_404_remove_redirect'></i>";
 
 								switch($redirect_status)
 								{
 									case 'draft':
 									case 'search':
-										echo "&nbsp;<i class='fa fa-eye-slash grey' title='".__("Ignore", 'lang_smart_404')."' rel='api_smart_404_ignore_redirect'></i>";
+										echo "<i class='fa fa-eye-slash grey' title='".__("Ignore", 'lang_smart_404')."' rel='api_smart_404_ignore_redirect'></i>";
 									break;
 								}
 
@@ -196,18 +210,20 @@ class mf_smart_404
 					}
 
 				echo "</tbody>
-			</table><br>";
+			</table>";
 		}
 
 		//@list($redirect_from, $redirect_to) = explode(" ", $option);
 		$redirect_from = $redirect_to = "";
 
-		echo "<div".apply_filters('get_flex_flow', "", ['class' => ['mf_form']]).">"
-			.show_textfield(array('value' => $redirect_from, 'placeholder' => __("from-url", 'lang_smart_404')))
-			.show_textfield(array('value' => $redirect_to, 'placeholder' => __("to-url", 'lang_smart_404')))
-		."</div>"
-		.show_button(array('type' => 'button', 'name' => 'btnRedirectSave', 'text' => __("Save", 'lang_smart_404'), 'class' => 'button-secondary'))
-		."<p id='redirect_debug'></p>";
+		echo "<div".apply_filters('get_form_attr', "").">
+			<div".apply_filters('get_flex_flow', "").">"
+				.show_textfield(array('value' => $redirect_from, 'placeholder' => __("from-url", 'lang_smart_404')))
+				.show_textfield(array('value' => $redirect_to, 'placeholder' => __("to-url", 'lang_smart_404')))
+			."</div>"
+			.show_button(array('type' => 'button', 'name' => 'btnRedirectSave', 'text' => __("Save", 'lang_smart_404'), 'class' => 'button-secondary'))
+			."<p id='redirect_debug'></p>
+		</div>";
 	}
 
 	function pre_get_posts($query)
