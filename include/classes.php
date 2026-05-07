@@ -154,7 +154,7 @@ class mf_smart_404
 									}
 
 									else
-									{									
+									{
 										echo "<a href='".$redirect_from."'>".$redirect_to."</a>";
 									}
 								}
