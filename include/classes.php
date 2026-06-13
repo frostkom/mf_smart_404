@@ -150,7 +150,9 @@ class mf_smart_404
 								{
 									if(substr($redirect_to, 0, 4) != "http")
 									{
-										echo "<a href='".$site_url."/".$redirect_to."'><span class='grey'>".$site_url."/</span>".$redirect_to."</a>";
+										$starts_with_slash = (substr($redirect_to, 0, 1) == "/");
+
+										echo "<a href='".$site_url.($starts_with_slash ? "" : "/").$redirect_to."'><span class='grey'>".$site_url.($starts_with_slash ? "" : "/")."</span>".$redirect_to."</a>";
 									}
 
 									else
@@ -461,6 +463,21 @@ class mf_smart_404
 				{
 					$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectTo FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectFrom = %s ORDER BY redirectCreated DESC LIMIT 0, 1", $wpdb->blogid, $search));
 
+					if($wpdb->num_rows == 0)
+					{
+						if(substr($request_uri, 0, 1) == "/") // If it is a file in wp-content/uploads basename above will remove the folders above so we need to account for this here
+						{
+							$search = substr($request_uri, 1);
+						}
+
+						else
+						{
+							$search = $request_uri;
+						}
+
+						$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectTo FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectFrom = %s ORDER BY redirectCreated DESC LIMIT 0, 1", $wpdb->blogid, $search));
+					}
+
 					if($wpdb->num_rows > 0)
 					{
 						foreach($result as $r)
@@ -471,7 +488,9 @@ class mf_smart_404
 
 							if(substr($redirect_to, 0, 4) != "http")
 							{
-								$redirect_to = get_site_url()."/".$redirect_to;
+								$starts_with_slash = (substr($redirect_to, 0, 1) == "/");
+
+								$redirect_to = get_site_url().($starts_with_slash ? "" : "/").$redirect_to;
 							}
 
 							switch($redirect_status)

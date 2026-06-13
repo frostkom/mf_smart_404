@@ -1,7 +1,8 @@
 jQuery(function($)
 {
-	var dom_obj_table = $(".smart_404_list"),
-		dom_obj_form = dom_obj_table.siblings(".mf_form"),
+	var dom_obj_container = $("#settings_smart_404").next(".form-table"),
+		dom_obj_table = dom_obj_container.find(".smart_404_list"),
+		dom_obj_form = dom_obj_container.find(".mf_form"),
 		dom_form_from = dom_obj_form.find(".form_textfield:first-of-type input"),
 		dom_form_to = dom_obj_form.find(".form_textfield:last-of-type input");
 

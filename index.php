@@ -2,8 +2,8 @@
 /*
 Plugin Name: MF Smart 404
 Plugin URI: https://github.com/frostkom/mf_smart_404
-Description:
-Version: 2.6.21
+Description: Redirect from one URL to another, and discover 404 and dead links
+Version: 2.6.23
 Licence: GPLv2 or later
 Author: Martin Fors
 Author URI: https://martinfors.se
