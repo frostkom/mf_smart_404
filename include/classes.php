@@ -13,7 +13,6 @@ class mf_smart_404
 
 		if($obj_cron->is_running == false)
 		{
-			// Delete old unused redirects
 			$wpdb->query("DELETE FROM ".$wpdb->base_prefix."redirect WHERE (redirectStatus IN ('ignore', 'publish') AND redirectUsedDate < DATE_SUB(NOW(), INTERVAL 1 YEAR)) OR (redirectStatus IN ('draft', 'search') AND redirectUsedDate < DATE_SUB(NOW(), INTERVAL 1 MONTH))");
 		}
 
@@ -75,7 +74,7 @@ class mf_smart_404
 		mf_enqueue_style('style_smart_404_settings', $plugin_include_url."style_settings.css");
 		mf_enqueue_script('script_smart_404_settings', $plugin_include_url."script_settings.js", array('ajax_url' => admin_url('admin-ajax.php')));
 
-		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectStatus != %s ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC LIMIT 0, 50", $wpdb->blogid, 'ignore'));
+		$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectFrom, redirectTo, redirectCreated, redirectUsedDate, redirectUsedAmount FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectStatus != %s AND (redirectStatus = %s OR redirectUsedAmount > '%d') ORDER BY redirectUsedAmount DESC, redirectUsedDate DESC, redirectCreated DESC", $wpdb->blogid, 'ignore', 'publish', 2));
 
 		if($wpdb->num_rows > 0)
 		{
@@ -127,11 +126,11 @@ class mf_smart_404
 								switch($redirect_status)
 								{
 									case 'search':
-										echo "<span class='grey'>".__("Search", 'lang_smart_404').": </span>".$redirect_from;
+										echo "<span class='grey'>".__("Search", 'lang_smart_404').": </span>".shorten_text(['string' => $redirect_from, 'limit' => 20]);
 									break;
 
 									default:
-										echo "<a href='".$site_url."/".$redirect_from."'><span class='grey'>".$site_url."/</span>".$redirect_from."</a>";
+										echo "<a href='".$site_url."/".$redirect_from."'><span class='grey'>".$site_url."/</span>".shorten_text(['string' => $redirect_from, 'limit' => 20])."</a>";
 									break;
 								}
 
@@ -240,7 +239,7 @@ class mf_smart_404
 				{
 					$search_term = get_search_query();
 
-					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'search', $search_term, ""));
+					$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'search', trim($search_term, "/"), ""));
 				}
 			});
 		}
@@ -514,7 +513,7 @@ class mf_smart_404
 					{
 						//do_log(__FUNCTION__.": No - ".$wpdb->last_query);
 
-						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'draft', $search, ""));
+						$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->base_prefix."redirect SET blogID = '%d', redirectStatus = %s, redirectFrom = %s, redirectTo = %s, redirectCreated = NOW(), redirectUsedDate = NOW(), redirectUsedAmount = '1'", $wpdb->blogid, 'draft', trim($search, "/"), ""));
 					}
 				}
 
