@@ -44,12 +44,32 @@ class mf_smart_404
 		echo settings_header($setting_key, __("Smart 404", 'lang_smart_404'));
 	}
 
+	function get_post_types_for_select()
+	{
+		$arr_data = [];
+
+		foreach(get_post_types(array('exclude_from_search' => false), 'objects') as $arr_post_type) //'public' => true, 'publicly_queryable' => true,
+		{
+			if(!in_array($arr_post_type->name, array('attachment')))
+			{
+				$obj_count = wp_count_posts($arr_post_type->name);
+
+				if($obj_count->publish > 0)
+				{
+					$arr_data[$arr_post_type->name] = $arr_post_type->label;
+				}
+			}
+		}
+
+		return $arr_data;
+	}
+
 	function setting_also_search_callback()
 	{
 		$setting_key = get_setting_key(__FUNCTION__);
 		$option = get_option($setting_key);
 
-		$arr_post_types = get_post_types_for_select(array('include' => array('types'), 'add_is' => false));
+		$arr_post_types = $this->get_post_types_for_select();
 
 		echo "<ul>";
 
@@ -454,10 +474,6 @@ class mf_smart_404
 
 			if($search != '')
 			{
-				//$search_words = trim(preg_replace( "@[_-]@", " ", $search));
-				//$GLOBALS["__smart404"]["search_words"] = explode(" ", $search_words);
-				//$GLOBALS["__smart404"]["suggestions"] = array();
-
 				if($redirect_to == "")
 				{
 					$result = $wpdb->get_results($wpdb->prepare("SELECT redirectID, redirectStatus, redirectTo FROM ".$wpdb->base_prefix."redirect WHERE blogID = '%d' AND redirectFrom = %s ORDER BY redirectCreated DESC LIMIT 0, 1", $wpdb->blogid, $search));
@@ -519,7 +535,7 @@ class mf_smart_404
 
 				if($redirect_to == "")
 				{
-					$search_groups = get_option_or_default('setting_also_search', get_post_types_for_select(array('include' => array('types'))));
+					$search_groups = get_option_or_default('setting_also_search', $this->get_post_types_for_select());
 
 					// Search twice: First looking for exact title match (high priority), then for a general search
 					foreach($search_groups as $group)
@@ -564,23 +580,16 @@ class mf_smart_404
 						{
 							$redirect_to = get_permalink($arr_posts[0]->ID);
 						}
-
-						//$GLOBALS["__smart404"]["suggestions"] = array_merge((array)$GLOBALS["__smart404"]["suggestions"], $arr_posts);
 					}
 				}
 			}
 
 			if($redirect_to != '')
 			{
-				//do_log(__FUNCTION__." ".$request_uri." -> ".$redirect_to." + ".$get_params);
-
-				mf_redirect($redirect_to.$get_params);
+				header("Location: ".$redirect_to.$get_params, true, 301);
+				exit;
+				//mf_redirect($redirect_to.$get_params);
 			}
-
-			/*else
-			{
-				do_log(__FUNCTION__." ".$request_uri);
-			}*/
 		}
 	}
 
