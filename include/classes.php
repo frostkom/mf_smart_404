@@ -75,8 +75,8 @@ class mf_smart_404
 
 			foreach($arr_post_types as $group_key => $group)
 			{
-				echo "<li>
-					<input type='checkbox' name='setting_also_search[]' value='".$group_key."' ".(is_array($option) && in_array($group_key, $option) ? "checked" : "").">&nbsp;<span>".$group."</span>"
+				echo "<li class='form_checkbox'>
+					<input type='checkbox' id='setting_also_search_".$group_key."' name='setting_also_search[]' value='".$group_key."' ".(is_array($option) && in_array($group_key, $option) ? "checked" : "")."><label for='setting_also_search_".$group_key."'>".$group."</label>"
 				."</li>";
 			}
 
